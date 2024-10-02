@@ -155,7 +155,6 @@ def main(args, configs):
             shift_amounts = [0, 1, 10, 50, 100, 500, 1000, 5000, 10000, 20000]
             shifted_BER = []
 
-            print(wav_matrix.size())
             # Process each shift amount
             for shift_amount in shift_amounts:
                 if shift_amount == 0:
@@ -167,7 +166,7 @@ def main(args, configs):
                     print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
                 else:
                     # Shift watermark and create shifted watermarked audio
-                    if shift_amount < wav_matrix.size(1):
+                    if shift_amount < wav_matrix.size(2):
                         # Shift the array to the right by one position
                         shifted_wm = torch.from_numpy(np.roll(wm, shift_amount)).to(wav_matrix.device)
                         shifted_watermarked_signal = wav_matrix + shifted_wm
@@ -205,7 +204,7 @@ def main(args, configs):
             #         print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
             #     else:
             #         # Shift watermark and create shifted watermarked audio
-            #         if shift_amount < wav_matrix.size(1):
+            #         if shift_amount < wav_matrix.size(2):
             #             # Shift the array to the right by one position
             #             shifted_wm = torch.from_numpy(np.roll(wm, shift_amount)).to(wav_matrix.device)
             #             shifted_watermarked_signal = wav_matrix + shifted_wm
