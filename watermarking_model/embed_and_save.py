@@ -161,7 +161,7 @@ def main(args, configs):
                     # No shift, use original watermarked audio
                     decoded = decoder.test_forward(encoded)
                     # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
-                    predicted_bits = (payload_decoded > 0).float()
+                    predicted_bits = (decoded > 0).float()
 
                     # Calculate the number of bit errors
                     bit_errors = torch.sum(predicted_bits != msg).item()
