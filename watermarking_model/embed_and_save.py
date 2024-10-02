@@ -184,8 +184,7 @@ def main(args, configs):
                         # Calculate BER
                         total_bits = len(msg)  # Total number of bits
                         ber = bit_errors / total_bits
-                        print(bit_errors)
-                        print(total_bits)
+                        print(msg)
                         decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(BER)
                         print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
