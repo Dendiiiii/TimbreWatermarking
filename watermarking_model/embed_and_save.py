@@ -142,9 +142,9 @@ def main(args, configs):
             msg = msg.to(device)
             # pdb.set_trace()
             encoded, carrier_wateramrked = encoder.test_forward(wav_matrix, msg)
+            name = sample["name"][0]
             print(msg)
             print(os.path.join(wm_path, name))
-            name = sample["name"][0]
             soundfile.write(os.path.join(wm_path, name), encoded.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
             # soundfile.write(os.path.join(ref_path, name), wav_matrix.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
             
