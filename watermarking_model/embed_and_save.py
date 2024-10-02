@@ -155,6 +155,7 @@ def main(args, configs):
             shift_amounts = [0, 1, 10, 50, 100, 500, 1000, 5000, 10000, 20000]
             shifted_BER = []
 
+            print(wav_matrix.size())
             # Process each shift amount
             for shift_amount in shift_amounts:
                 if shift_amount == 0:
