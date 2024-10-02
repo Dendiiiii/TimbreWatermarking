@@ -149,7 +149,7 @@ def main(args, configs):
             
 
             ###################################################
-            wm = np.array(wav_matrix - encoded)
+            wm = np.array((wav_matrix - encoded).detach().cpu())
 
             # Define shift amounts to test
             shift_amounts = [0, 1, 10, 50, 100, 500, 1000, 5000, 10000, 20000]
@@ -167,7 +167,7 @@ def main(args, configs):
                     # Shift watermark and create shifted watermarked audio
                     if shift_amount < wav_matrix.size(1):
                         # Shift the array to the right by one position
-                        shifted_wm = torch.from_numpy(np.roll(wm, shift_amount))
+                        shifted_wm = torch.from_numpy(np.roll(wm, shift_amount)).to(wav_matrix.device)
                         shifted_watermarked_signal = wav_matrix + shifted_wm
 
                         # decode watermark
