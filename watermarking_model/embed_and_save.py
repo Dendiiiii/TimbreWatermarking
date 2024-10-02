@@ -143,12 +143,43 @@ def main(args, configs):
             # pdb.set_trace()
             encoded, carrier_wateramrked = encoder.test_forward(wav_matrix, msg)
             name = sample["name"][0]
-            print(msg)
-            print(os.path.join(wm_path, name))
+
             soundfile.write(os.path.join(wm_path, name), encoded.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
             # soundfile.write(os.path.join(ref_path, name), wav_matrix.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
             
-            decoded = decoder.test_forward(encoded)
+
+            ###################################################
+            wm = np.array(wav_matrix - encoded)
+
+            # Define shift amounts to test
+            shift_amounts = [0, 1, 10, 50, 100, 500, 1000, 5000, 10000, 20000]
+            shifted_BER = []
+
+            # Process each shift amount
+            for shift_amount in shift_amounts:
+                if shift_amount == 0:
+                    # No shift, use original watermarked audio
+                    decoded = decoder.test_forward(encoded)
+                    BER = (msg != decoded).mean() * 100
+                    shifted_BER.append(BER)
+                    print("Shift amount: {} - Decode BER:{}".format(shift_amount, BER))
+                else:
+                    # Shift watermark and create shifted watermarked audio
+                    if shift_amount < wav_matrix.size(1):
+                        # Shift the array to the right by one position
+                        shifted_wm = torch.from_numpy(np.roll(wm, shift_amount))
+                        shifted_watermarked_signal = wav_matrix + shifted_wm
+
+                        # decode watermark
+                        payload_decoded, _ = decoder.test_forward(shifted_watermarked_signal)
+                        BER = (msg != payload_decoded).mean() * 100
+                        shifted_BER.append(BER)
+                        print("Shift amount: {} - Decode BER:{}".format(shift_amount, BER))
+                    else:
+                        print("Shift Amount Exceeded!")
+
+            ###################################################
+
             losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
             decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
             zero_tensor = torch.zeros(wav_matrix.shape).to(device)
