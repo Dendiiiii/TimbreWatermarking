@@ -160,11 +160,18 @@ def main(args, configs):
                 if shift_amount == 0:
                     # No shift, use original watermarked audio
                     decoded = decoder.test_forward(encoded)
-                    predicted_bits = (decoded > 0).float()
-                    BER = (msg != predicted_bits).float().mean() * 100
+                    # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
+                    predicted_bits = (payload_decoded > 0).float()
+
+                    # Calculate the number of bit errors
+                    bit_errors = torch.sum(predicted_bits != msg).item()
+
+                    # Calculate BER
+                    total_bits = msg.size(-1)  # Total number of bits
+                    ber = bit_errors / total_bits
                     decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
-                    shifted_BER.append(BER)
-                    print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
+                    shifted_BER.append(ber)
+                    print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
                 else:
                     # Shift watermark and create shifted watermarked audio
                     if shift_amount < wav_matrix.size(2):
@@ -184,9 +191,10 @@ def main(args, configs):
                         # Calculate BER
                         total_bits = msg.size(-1)  # Total number of bits
                         ber = bit_errors / total_bits
-                        print(msg.size())
                         decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
-                        shifted_BER.append(BER)
+                        shifted_BER.append(ber)
+                        print(payload_decoded)
+                        print(msg)
                         print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
                     else:
                         print("Shift Amount Exceeded!")
