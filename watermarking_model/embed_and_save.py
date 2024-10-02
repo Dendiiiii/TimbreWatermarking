@@ -182,9 +182,9 @@ def main(args, configs):
                         bit_errors = torch.sum(predicted_bits != msg).item()
 
                         # Calculate BER
-                        total_bits = len(msg)  # Total number of bits
+                        total_bits = msg.size(-1)  # Total number of bits
                         ber = bit_errors / total_bits
-                        print(msg)
+                        print(msg.size())
                         decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(BER)
                         print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
