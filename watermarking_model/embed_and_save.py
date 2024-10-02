@@ -213,6 +213,8 @@ def main(args, configs):
                         decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(BER)
                         print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
+                        print(msg)
+                        print(payload_decoded)
                     else:
                         print("Shift Amount Exceeded!")
 
