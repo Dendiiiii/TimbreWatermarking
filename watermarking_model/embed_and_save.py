@@ -175,23 +175,19 @@ def main(args, configs):
                         # decode watermark
                         payload_decoded = decoder.test_forward(shifted_watermarked_signal)
 
-                        # # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
-                        # predicted_bits = (decoded_msg > 0.5).float()
-                        #
-                        # # Calculate the number of bit errors
-                        # bit_errors = torch.sum(predicted_bits != msg).item()
-                        #
-                        # # Calculate BER
-                        # total_bits = msg.size(0) * msg.size(1)  # Total number of bits
-                        # ber = bit_errors / total_bits
-
+                        # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
                         predicted_bits = (payload_decoded > 0).float()
-                        BER = (msg != predicted_bits).float().mean() * 100
+
+                        # Calculate the number of bit errors
+                        bit_errors = torch.sum(predicted_bits != msg).item()
+
+                        # Calculate BER
+                        total_bits = len(msg)  # Total number of bits
+                        ber = bit_errors / total_bits
+
                         decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(BER)
-                        print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
-                        # print(msg)
-                        # print(payload_decoded)
+                        print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
                     else:
                         print("Shift Amount Exceeded!")
 
