@@ -126,13 +126,28 @@ class Encoder(nn.Module):
         y = self.stft.inverse(carrier_wateramrked.squeeze(1), phase.squeeze(1))
         return y, carrier_wateramrked
     
-    def test_forward(self, x, msg):
+    def test_forward(self, x, msg, shift=False):
         num_samples = x.shape[2]
         spect, phase = self.stft.transform(x)
         
         carrier_encoded = self.ENc(spect.unsqueeze(1)) 
         watermark_encoded = self.msg_linear_in(msg).transpose(1,2).unsqueeze(1).repeat(1,1,1,carrier_encoded.shape[3])
-        concatenated_feature = torch.cat((carrier_encoded, spect.unsqueeze(1), watermark_encoded), dim=1)  
+
+        # Define shift amount
+        shift_amount = 2  # Number of time frames to shift to the right
+
+        # Check if shift_amount is less than the number of time frames
+        if shift is not False and shift_amount != 0 and shift_amount < watermark_encoded.size(-1):
+            # Create a tensor of zeros for the left part
+            zero_tensor = torch.zeros_like(watermark_encoded[..., :shift_amount])  # Shape: [b, 2, freq_bins, shift_amount]
+
+            # Shift tensor to the right
+            shifted_watermark = torch.cat((zero_tensor, watermark_encoded[..., :-shift_amount]),
+                                          dim=-1)  # Concatenate along the time_frames dimension
+            concatenated_feature = torch.cat((carrier_encoded, spect.unsqueeze(1), shifted_watermark), dim=1)
+        else:
+            concatenated_feature = torch.cat((carrier_encoded, spect.unsqueeze(1), watermark_encoded), dim=1)
+
         carrier_wateramrked = self.EM(concatenated_feature)  
         
         self.stft.num_samples = num_samples

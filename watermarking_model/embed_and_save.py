@@ -142,6 +142,8 @@ def main(args, configs):
             msg = msg.to(device)
             # pdb.set_trace()
             encoded, carrier_wateramrked = encoder.test_forward(wav_matrix, msg)
+            print(msg)
+            print(os.path.join(wm_path, name))
             name = sample["name"][0]
             soundfile.write(os.path.join(wm_path, name), encoded.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
             # soundfile.write(os.path.join(ref_path, name), wav_matrix.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
@@ -175,7 +177,7 @@ if __name__ == "__main__":
         "-t", "--train_config", type=str, default="config/train.yaml", help="path to train.yaml"
     )
     parser.add_argument("--wm", type=int, default=0, help="Index of the watermark in results/wmpool.txt")
-    parser.add_argument("-o", "--original_path", type=str, default="data/ljspeech/LJSpeech-1.1/wavs/", help="original wavs path")
+    parser.add_argument("-o", "--original_path", type=str, default="/home/guohanqi/data/LJSpeech-1.1/wavs", help="original wavs path")
     parser.add_argument("-s", "--save_path", type=str, default="results/wm_speech/ljspeech", help="path to save watermarked wavs")
     parser.add_argument("-mp", "--model_path", type=str, default="results/ckpt/pth/", help="model ckpt.pth.tar path")
     args = parser.parse_args()
