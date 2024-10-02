@@ -160,9 +160,10 @@ def main(args, configs):
                 if shift_amount == 0:
                     # No shift, use original watermarked audio
                     decoded = decoder.test_forward(encoded)
-                    BER = (msg != decoded).mean() * 100
+                    BER = (msg != decoded).float().mean() * 100
+                    decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                     shifted_BER.append(BER)
-                    print("Shift amount: {} - Decode BER:{}".format(shift_amount, BER))
+                    print("Shift amount: {} - Decode Accuracy: {}".format(shift_amount, decoder_acc))
                 else:
                     # Shift watermark and create shifted watermarked audio
                     if shift_amount < wav_matrix.size(1):
@@ -172,9 +173,10 @@ def main(args, configs):
 
                         # decode watermark
                         payload_decoded, _ = decoder.test_forward(shifted_watermarked_signal)
-                        BER = (msg != payload_decoded).mean() * 100
+                        BER = (msg != payload_decoded).float().mean() * 100
+                        decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(BER)
-                        print("Shift amount: {} - Decode BER:{}".format(shift_amount, BER))
+                        print("Shift amount: {} - Decode Accuracy: {}".format(shift_amount, decoder_acc))
                     else:
                         print("Shift Amount Exceeded!")
 
