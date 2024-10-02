@@ -172,7 +172,7 @@ def main(args, configs):
                         shifted_watermarked_signal = wav_matrix + shifted_wm
 
                         # decode watermark
-                        payload_decoded, _ = decoder.test_forward(shifted_watermarked_signal)
+                        payload_decoded = decoder.test_forward(shifted_watermarked_signal)
                         BER = (msg != payload_decoded).float().mean() * 100
                         decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(BER)
