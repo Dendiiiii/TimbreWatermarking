@@ -148,22 +148,58 @@ def main(args, configs):
             # soundfile.write(os.path.join(ref_path, name), wav_matrix.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
             
 
+            # ###################################################
+            # wm = np.array((wav_matrix - encoded).detach().cpu())
+            #
+            # # Define shift amounts to test
+            # shift_amounts = [0, 1, 10, 50, 100, 500, 1000, 5000, 10000, 20000]
+            # shifted_BER = []
+            #
+            # # Process each shift amount
+            # for shift_amount in shift_amounts:
+            #     if shift_amount == 0:
+            #         # No shift, use original watermarked audio
+            #         decoded = decoder.test_forward(encoded)
+            #         BER = (msg != decoded).float().mean() * 100
+            #         decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
+            #         shifted_BER.append(BER)
+            #         print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
+            #     else:
+            #         # Shift watermark and create shifted watermarked audio
+            #         if shift_amount < wav_matrix.size(1):
+            #             # Shift the array to the right by one position
+            #             shifted_wm = torch.from_numpy(np.roll(wm, shift_amount)).to(wav_matrix.device)
+            #             shifted_watermarked_signal = wav_matrix + shifted_wm
+            #
+            #             # decode watermark
+            #             payload_decoded, _ = decoder.test_forward(shifted_watermarked_signal)
+            #             BER = (msg != payload_decoded).float().mean() * 100
+            #             decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
+            #             shifted_BER.append(BER)
+            #             print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
+            #         else:
+            #             print("Shift Amount Exceeded!")
+            #
+            # ###################################################
+
             ###################################################
             wm = np.array((wav_matrix - encoded).detach().cpu())
 
             # Define shift amounts to test
-            shift_amounts = [0, 1, 10, 50, 100, 500, 1000, 5000, 10000, 20000]
+            percentage_shifts = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
             shifted_BER = []
 
-            # Process each shift amount
-            for shift_amount in shift_amounts:
+            # Process each percentage shift
+            for percentage in percentage_shifts:
+                # Calculate the actual shift amount based on the percentage
+                shift_amount = int(len(wav_matrix) * (percentage / 100))
                 if shift_amount == 0:
                     # No shift, use original watermarked audio
                     decoded = decoder.test_forward(encoded)
                     BER = (msg != decoded).float().mean() * 100
                     decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                     shifted_BER.append(BER)
-                    print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
+                    print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
                 else:
                     # Shift watermark and create shifted watermarked audio
                     if shift_amount < wav_matrix.size(1):
@@ -176,11 +212,12 @@ def main(args, configs):
                         BER = (msg != payload_decoded).float().mean() * 100
                         decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(BER)
-                        print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
+                        print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
                     else:
                         print("Shift Amount Exceeded!")
 
             ###################################################
+
 
             losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
             decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
