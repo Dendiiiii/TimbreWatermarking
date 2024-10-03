@@ -185,8 +185,10 @@ def main(args, configs):
                         # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
                         predicted_bits = (payload_decoded > 0).float()
 
+                        binary_msg = (msg + 1) / 2
+
                         # Calculate the number of bit errors
-                        bit_errors = torch.sum(predicted_bits != msg).item()
+                        bit_errors = torch.sum(predicted_bits != binary_msg).item()
 
                         # Calculate BER
                         total_bits = msg.size(-1)  # Total number of bits
@@ -228,9 +230,19 @@ def main(args, configs):
             #
             #             # decode watermark
             #             payload_decoded, _ = decoder.test_forward(shifted_watermarked_signal)
-            #             BER = (msg != payload_decoded).float().mean() * 100
-            #             decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
-            #             shifted_BER.append(BER)
+            #             # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
+            #             predicted_bits = (payload_decoded > 0).float()
+            #
+            #             binary_msg = (msg + 1) / 2
+            #
+            #             # Calculate the number of bit errors
+            #             bit_errors = torch.sum(predicted_bits != binary_msg).item()
+            #
+            #             # Calculate BER
+            #             total_bits = msg.size(-1)  # Total number of bits
+            #             ber = bit_errors / total_bits
+            #             decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
+            #             shifted_BER.append(ber)
             #             print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
             #             print(msg)
             #             print(payload_decoded)
