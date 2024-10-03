@@ -211,14 +211,22 @@ def main(args, configs):
             # Process each percentage shift
             for percentage in percentage_shifts:
                 # Calculate the actual shift amount based on the percentage
-                shift_amount = int(len(wav_matrix) * (percentage / 100))
+                shift_amount = int(wav_matrix.size(-1) * (percentage / 100))
                 if shift_amount == 0:
                     # No shift, use original watermarked audio
                     decoded = decoder.test_forward(encoded)
-                    BER = (msg != decoded).float().mean() * 100
+                    # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
+                    predicted_bits = (decoded > 0).float()
+
+                    # Calculate the number of bit errors
+                    bit_errors = torch.sum(predicted_bits != msg).item()
+
+                    # Calculate BER
+                    total_bits = msg.size(-1)  # Total number of bits
+                    ber = bit_errors / total_bits
                     decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
-                    shifted_BER.append(BER)
-                    print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
+                    shifted_BER.append(ber)
+                    print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
                 else:
                     # Shift watermark and create shifted watermarked audio
                     if shift_amount < wav_matrix.size(2):
@@ -227,7 +235,7 @@ def main(args, configs):
                         shifted_watermarked_signal = wav_matrix + shifted_wm
 
                         # decode watermark
-                        payload_decoded, _ = decoder.test_forward(shifted_watermarked_signal)
+                        payload_decoded = decoder.test_forward(shifted_watermarked_signal)
                         # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
                         predicted_bits = (payload_decoded > 0).float()
 
@@ -241,7 +249,7 @@ def main(args, configs):
                         ber = bit_errors / total_bits
                         decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(ber)
-                        print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, BER, decoder_acc))
+                        print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
                         print(msg)
                         print(payload_decoded)
                     else:
