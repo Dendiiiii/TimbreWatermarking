@@ -270,8 +270,9 @@ def main(args, configs):
             #         else:
             #             logging.info("Shift Amount Exceeded!")
             # ###################################################
-                encoded = wav[0].unsqueeze(0)
-
+                # encoded = wav[0].unsqueeze(0)
+                print(wav[0].cuda().size())
+                print(encoded.size())
                 decoded = decoder.test_forward(wav[0].cuda())
                 # losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
                 decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
