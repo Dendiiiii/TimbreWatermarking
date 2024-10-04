@@ -14,7 +14,7 @@ import soundfile
 import torchaudio
 import random
 import pdb
-
+import os
 
 # set seeds
 seed = 2022
@@ -152,6 +152,9 @@ def main(args, configs):
             # encoded, carrier_wateramrked = encoder.test_forward(wav_matrix, msg)
 
             for i in range(1,12):
+                print(os.path.exists(
+                    "/home/guohanqi/code/yizhu_wen_test/TimbreWatermarking/watermarking_model/results/wm_speech/ljspeech/recording_test/1.wav"))
+
                 wav, sr = torchaudio.load(os.path.join(
                     "/home/guohanqi/code/yizhu_wen_test/TimbreWatermarking/watermarking_model/results/wm_speech/ljspeech/recording_test/",
                     str(i) + ".wav"))
