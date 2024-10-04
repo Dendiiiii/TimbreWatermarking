@@ -153,11 +153,11 @@ def main(args, configs):
 
             for i in range(1,12):
                 print(os.path.exists(
-                    "/home/guohanqi/code/yizhu_wen_test/TimbreWatermarking/watermarking_model/results/wm_speech/ljspeech/recording_test/1.wav"))
+                    "/home/guohanqi/code/yizhu_wen_test/TimbreWatermarking/watermarking_model/results/wm_speech/ljspeech/recording_test/1.WAV"))
 
                 wav, sr = torchaudio.load(os.path.join(
                     "/home/guohanqi/code/yizhu_wen_test/TimbreWatermarking/watermarking_model/results/wm_speech/ljspeech/recording_test/",
-                    str(i) + ".wav"))
+                    str(i) + ".WAV"))
                 print(wav.size())
             # name = sample["name"][0]
             #
