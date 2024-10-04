@@ -155,87 +155,30 @@ def main(args, configs):
             # soundfile.write(os.path.join(ref_path, name), wav_matrix.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
             
 
-            # ###################################################
-            # wm = np.array((wav_matrix - encoded).detach().cpu())
-            #
-            # # Define shift amounts to test
-            # shift_amounts = [0, 1, 10, 50, 100, 500, 1000, 5000, 10000, 20000]
-            # shifted_BER = []
-            #
-            # # Process each shift amount
-            # for shift_amount in shift_amounts:
-            #     if shift_amount == 0:
-            #         # No shift, use original watermarked audio
-            #         decoded = decoder.test_forward(encoded)
-            #         # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
-            #         predicted_bits = (decoded > 0).float()
-            #
-            #         # Calculate the number of bit errors
-            #         bit_errors = torch.sum(predicted_bits != msg).item()
-            #
-            #         # Calculate BER
-            #         total_bits = msg.size(-1)  # Total number of bits
-            #         ber = bit_errors / total_bits
-            #         decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
-            #         shifted_BER.append(ber)
-            #         print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
-            #     else:
-            #         # Shift watermark and create shifted watermarked audio
-            #         if shift_amount < wav_matrix.size(2):
-            #             # Shift the array to the right by one position
-            #             shifted_wm = torch.from_numpy(np.roll(wm, shift_amount)).to(wav_matrix.device)
-            #             shifted_watermarked_signal = wav_matrix + shifted_wm
-            #
-            #             # decode watermark
-            #             payload_decoded = decoder.test_forward(shifted_watermarked_signal)
-            #
-            #             # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
-            #             predicted_bits = (payload_decoded > 0).float()
-            #
-            #             binary_msg = (msg + 1) / 2
-            #
-            #             # Calculate the number of bit errors
-            #             bit_errors = torch.sum(predicted_bits != binary_msg).item()
-            #
-            #             # Calculate BER
-            #             total_bits = msg.size(-1)  # Total number of bits
-            #             ber = bit_errors / total_bits
-            #             decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
-            #             shifted_BER.append(ber)
-            #             print("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
-            #         else:
-            #             print("Shift Amount Exceeded!")
-            #
-            # ###################################################
-
             ###################################################
             wm = np.array((wav_matrix - encoded).detach().cpu())
 
             # Define shift amounts to test
-            percentage_shifts = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+            shift_amounts = [0, 1, 10, 50, 100, 500, 1000, 5000, 10000, 20000]
             shifted_BER = []
 
-            # Process each percentage shift
-            for percentage in percentage_shifts:
-                # Calculate the actual shift amount based on the percentage
-                shift_amount = int(wav_matrix.size(-1) * (percentage / 100))
+            # Process each shift amount
+            for shift_amount in shift_amounts:
                 if shift_amount == 0:
                     # No shift, use original watermarked audio
                     decoded = decoder.test_forward(encoded)
                     # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
                     predicted_bits = (decoded > 0).float()
 
-                    binary_msg = (msg + 1) / 2
-
                     # Calculate the number of bit errors
-                    bit_errors = torch.sum(predicted_bits != binary_msg).item()
+                    bit_errors = torch.sum(predicted_bits != msg).item()
 
                     # Calculate BER
                     total_bits = msg.size(-1)  # Total number of bits
                     ber = bit_errors / total_bits
                     decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                     shifted_BER.append(ber)
-                    logging.info("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(percentage, ber, decoder_acc))
+                    logging.info("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
                 else:
                     # Shift watermark and create shifted watermarked audio
                     if shift_amount <= wav_matrix.size(2):
@@ -245,6 +188,7 @@ def main(args, configs):
 
                         # decode watermark
                         payload_decoded = decoder.test_forward(shifted_watermarked_signal)
+
                         # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
                         predicted_bits = (payload_decoded > 0).float()
 
@@ -258,10 +202,66 @@ def main(args, configs):
                         ber = bit_errors / total_bits
                         decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(ber)
-                        logging.info("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(percentage, ber, decoder_acc))
+                        logging.info("Shift amount: {} - Decode BER:{} - Decode Accuracy{}".format(shift_amount, ber, decoder_acc))
                     else:
                         logging.info("Shift Amount Exceeded!")
+
             ###################################################
+
+            # ###################################################
+            # wm = np.array((wav_matrix - encoded).detach().cpu())
+            #
+            # # Define shift amounts to test
+            # percentage_shifts = [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+            # shifted_BER = []
+            #
+            # # Process each percentage shift
+            # for percentage in percentage_shifts:
+            #     # Calculate the actual shift amount based on the percentage
+            #     shift_amount = int(wav_matrix.size(-1) * (percentage / 100))
+            #     if shift_amount == 0:
+            #         # No shift, use original watermarked audio
+            #         decoded = decoder.test_forward(encoded)
+            #         # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
+            #         predicted_bits = (decoded > 0).float()
+            #
+            #         binary_msg = (msg + 1) / 2
+            #
+            #         # Calculate the number of bit errors
+            #         bit_errors = torch.sum(predicted_bits != binary_msg).item()
+            #
+            #         # Calculate BER
+            #         total_bits = msg.size(-1)  # Total number of bits
+            #         ber = bit_errors / total_bits
+            #         decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
+            #         shifted_BER.append(ber)
+            #         logging.info("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(percentage, ber, decoder_acc))
+            #     else:
+            #         # Shift watermark and create shifted watermarked audio
+            #         if shift_amount <= wav_matrix.size(2):
+            #             # Shift the array to the right by one position
+            #             shifted_wm = torch.from_numpy(np.roll(wm, shift_amount)).to(wav_matrix.device)
+            #             shifted_watermarked_signal = wav_matrix + shifted_wm
+            #
+            #             # decode watermark
+            #             payload_decoded = decoder.test_forward(shifted_watermarked_signal)
+            #             # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
+            #             predicted_bits = (payload_decoded > 0).float()
+            #
+            #             binary_msg = (msg + 1) / 2
+            #
+            #             # Calculate the number of bit errors
+            #             bit_errors = torch.sum(predicted_bits != binary_msg).item()
+            #
+            #             # Calculate BER
+            #             total_bits = msg.size(-1)  # Total number of bits
+            #             ber = bit_errors / total_bits
+            #             decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
+            #             shifted_BER.append(ber)
+            #             logging.info("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(percentage, ber, decoder_acc))
+            #         else:
+            #             logging.info("Shift Amount Exceeded!")
+            # ###################################################
 
             losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
             decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
