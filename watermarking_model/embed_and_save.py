@@ -271,15 +271,15 @@ def main(args, configs):
             #             logging.info("Shift Amount Exceeded!")
             # ###################################################
                 encoded = wav[0].unsqueeze(0)
-                decoded = decoder.test_forward(wav)
-                losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
+                decoded = decoder.test_forward(wav[0].unsqueeze(0))
+                # losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
                 decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                 zero_tensor = torch.zeros(wav_matrix.shape).to(device)
                 snr = 10 * torch.log10(mse_loss(wav_matrix.detach(), zero_tensor) / mse_loss(wav_matrix.detach(), encoded.detach()))
                 norm2=mse_loss(wav_matrix.detach(),zero_tensor)
                 logging.info('-' * 100)
                 logging.info("step:{} - audio:{} - wav_loss:{:.8f} - msg_loss:{:.8f} - acc:{:.8f} - snr:{:.8f} - norm:{:.8f} - patch_num:{} - pad_num:{} - wav_len:{} - name:{}".format( \
-                    global_step, sample['name'], losses[0], losses[1], decoder_acc, snr, norm2, sample["patch_num"].item(), sample["pad_num"].item(), wav_matrix.shape[2], sample["name"][0]))
+                    global_step, sample['name'], 0, 0, decoder_acc, snr, norm2, sample["patch_num"].item(), sample["pad_num"].item(), wav_matrix.shape[2], sample["name"][0]))
             np.save("results/wm_speech/wm.npy", np.stack(wm_list,axis=0))
 
 
