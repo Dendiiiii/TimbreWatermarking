@@ -155,8 +155,6 @@ def main(args, configs):
                 wav, sr = torchaudio.load(os.path.join(
                     "/home/guohanqi/code/yizhu_wen_test/TimbreWatermarking/watermarking_model/results/wm_speech/ljspeech/recording_test/",
                     str(i) + ".WAV"))
-                print(wav.size())
-                print("wav_matrix:", wav_matrix.size())
             # name = sample["name"][0]
             #
             # soundfile.write(os.path.join(wm_path, name), encoded.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
@@ -272,7 +270,7 @@ def main(args, configs):
             #         else:
             #             logging.info("Shift Amount Exceeded!")
             # ###################################################
-                encoded = wav
+                encoded = wav[0].unsqueeze(0)
                 decoded = decoder.test_forward(wav)
                 losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
                 decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
