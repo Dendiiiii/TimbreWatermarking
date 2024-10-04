@@ -159,6 +159,7 @@ def main(args, configs):
                     "/home/guohanqi/code/yizhu_wen_test/TimbreWatermarking/watermarking_model/results/wm_speech/ljspeech/recording_test/",
                     str(i) + ".WAV"))
                 print(wav.size())
+                print("wav_matrix:", wav_matrix.size())
             # name = sample["name"][0]
             #
             # soundfile.write(os.path.join(wm_path, name), encoded.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
