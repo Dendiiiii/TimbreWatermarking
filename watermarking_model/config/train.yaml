@@ -6,7 +6,8 @@ adv: True
 
 path:
   raw_path: "/home/guohanqi/data/LJSpeech-1.1/wavs"
-  raw_path_test: "experiments/cloned_speechs"
+#  raw_path_test: "experiments/cloned_speechs"
+  raw_path_test: "./results/wm_speech/ljspeech/recording_test"
   wm_speech: "./results/wm_speech"
   ckpt: "results/ckpt/"
   log_path: "results/log/"
