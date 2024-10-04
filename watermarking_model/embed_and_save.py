@@ -152,6 +152,7 @@ def main(args, configs):
             # encoded, carrier_wateramrked = encoder.test_forward(wav_matrix, msg)
 
             for i in range(1,12):
+                print(os.path.join("./results/wm_speech/ljspeech/recording_test", str(i)+".wav"))
                 wav, sr = torchaudio.load(os.path.join("./results/wm_speech/ljspeech/recording_test", str(i)+".wav"))
 
             # encoded = wav_matrix
