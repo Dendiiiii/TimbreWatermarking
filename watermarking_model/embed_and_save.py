@@ -273,15 +273,15 @@ def main(args, configs):
                 # encoded = wav[0].unsqueeze(0)
                 print(wav[0].unsqueeze(0).unsqueeze(0).cuda().size())
                 print(encoded.size())
-                decoded = decoder.test_forward(wav[0].cuda())
+                decoded = decoder.test_forward(wav[0].unsqueeze(0).unsqueeze(0).cuda())
                 # losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
                 decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                 zero_tensor = torch.zeros(wav_matrix.shape).to(device)
-                snr = 10 * torch.log10(mse_loss(wav_matrix.detach(), zero_tensor) / mse_loss(wav_matrix.detach(), encoded.detach()))
+                # snr = 10 * torch.log10(mse_loss(wav_matrix.detach(), zero_tensor) / mse_loss(wav_matrix.detach(), encoded.detach()))
                 norm2=mse_loss(wav_matrix.detach(),zero_tensor)
                 logging.info('-' * 100)
                 logging.info("step:{} - audio:{} - wav_loss:{:.8f} - msg_loss:{:.8f} - acc:{:.8f} - snr:{:.8f} - norm:{:.8f} - patch_num:{} - pad_num:{} - wav_len:{} - name:{}".format( \
-                    global_step, sample['name'], 0, 0, decoder_acc, snr, norm2, sample["patch_num"].item(), sample["pad_num"].item(), wav_matrix.shape[2], sample["name"][0]))
+                    global_step, sample['name'], 0, 0, decoder_acc, 0, norm2, sample["patch_num"].item(), sample["pad_num"].item(), wav_matrix.shape[2], sample["name"][0]))
             np.save("results/wm_speech/wm.npy", np.stack(wm_list,axis=0))
 
 
