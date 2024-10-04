@@ -11,6 +11,7 @@ from model.loss import Loss
 import datetime
 from torch.nn.functional import mse_loss
 import soundfile
+import torchaudio
 import random
 import pdb
 
@@ -149,12 +150,16 @@ def main(args, configs):
             msg = msg.to(device)
             # pdb.set_trace()
             # encoded, carrier_wateramrked = encoder.test_forward(wav_matrix, msg)
-            encoded = wav_matrix
-            name = sample["name"][0]
 
-            soundfile.write(os.path.join(wm_path, name), encoded.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
-            # soundfile.write(os.path.join(ref_path, name), wav_matrix.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
-            decoded = decoder.test_forward(encoded)
+            for i in range(1,12):
+                wav, sr = torchaudio.load(os.path.join("./results/wm_speech/ljspeech/recording_test", str(i)+".wav"))
+
+            # encoded = wav_matrix
+            # name = sample["name"][0]
+            #
+            # soundfile.write(os.path.join(wm_path, name), encoded.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
+            # # soundfile.write(os.path.join(ref_path, name), wav_matrix.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
+            # decoded = decoder.test_forward(encoded)
 
             # ###################################################
             # wm = np.array((wav_matrix - encoded).detach().cpu())
@@ -265,16 +270,17 @@ def main(args, configs):
             #         else:
             #             logging.info("Shift Amount Exceeded!")
             # ###################################################
-
-            losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
-            decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
-            zero_tensor = torch.zeros(wav_matrix.shape).to(device)
-            snr = 10 * torch.log10(mse_loss(wav_matrix.detach(), zero_tensor) / mse_loss(wav_matrix.detach(), encoded.detach()))
-            norm2=mse_loss(wav_matrix.detach(),zero_tensor)
-            logging.info('-' * 100)
-            logging.info("step:{} - audio:{} - wav_loss:{:.8f} - msg_loss:{:.8f} - acc:{:.8f} - snr:{:.8f} - norm:{:.8f} - patch_num:{} - pad_num:{} - wav_len:{} - name:{}".format( \
-                global_step, sample['name'], losses[0], losses[1], decoder_acc, snr, norm2, sample["patch_num"].item(), sample["pad_num"].item(), wav_matrix.shape[2], sample["name"][0]))
-        np.save("results/wm_speech/wm.npy", np.stack(wm_list,axis=0))
+                encoded = wav
+                decoded = decoder.test_forward(wav)
+                losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
+                decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
+                zero_tensor = torch.zeros(wav_matrix.shape).to(device)
+                snr = 10 * torch.log10(mse_loss(wav_matrix.detach(), zero_tensor) / mse_loss(wav_matrix.detach(), encoded.detach()))
+                norm2=mse_loss(wav_matrix.detach(),zero_tensor)
+                logging.info('-' * 100)
+                logging.info("step:{} - audio:{} - wav_loss:{:.8f} - msg_loss:{:.8f} - acc:{:.8f} - snr:{:.8f} - norm:{:.8f} - patch_num:{} - pad_num:{} - wav_len:{} - name:{}".format( \
+                    global_step, sample['name'], losses[0], losses[1], decoder_acc, snr, norm2, sample["patch_num"].item(), sample["pad_num"].item(), wav_matrix.shape[2], sample["name"][0]))
+            np.save("results/wm_speech/wm.npy", np.stack(wm_list,axis=0))
 
 
 if __name__ == "__main__":

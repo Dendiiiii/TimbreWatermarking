@@ -144,7 +144,6 @@ class mel_dataset_test(Dataset):
 
     def __getitem__(self, idx):
         audio_name = self.wavs[idx]
-        print(audio_name)
         wav, sr = torchaudio.load(os.path.join(self.dataset_path, audio_name))
         # wav = self.resample(wav)
         # wav = wav[:,:self.max_len]
