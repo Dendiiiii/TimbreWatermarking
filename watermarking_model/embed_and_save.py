@@ -170,8 +170,10 @@ def main(args, configs):
                     # Convert probabilities to binary values (0 or 1) using a threshold of 0.5
                     predicted_bits = (decoded > 0).float()
 
+                    binary_msg = (msg + 1) / 2
+
                     # Calculate the number of bit errors
-                    bit_errors = torch.sum(predicted_bits != msg).item()
+                    bit_errors = torch.sum(predicted_bits != binary_msg).item()
 
                     # Calculate BER
                     total_bits = msg.size(-1)  # Total number of bits
