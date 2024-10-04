@@ -23,7 +23,13 @@ torch.cuda.manual_seed(seed)
 
 logging_mark = "#"*20
 # warnings.filterwarnings("ignore")
-logging.basicConfig(level=logging.INFO, format='%(message)s')
+logging.basicConfig(
+    filename="mylog_{}.log".format(
+        datetime.datetime.now().strftime("%Y-%m_%d_%H_%M_%S")
+    ),
+    level=logging.INFO,
+    format="%(message)s",
+)
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def main(args, configs):
@@ -228,10 +234,10 @@ def main(args, configs):
                     ber = bit_errors / total_bits
                     decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                     shifted_BER.append(ber)
-                    print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(percentage, ber, decoder_acc))
+                    logging.info("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(percentage, ber, decoder_acc))
                 else:
                     # Shift watermark and create shifted watermarked audio
-                    if shift_amount < wav_matrix.size(2):
+                    if shift_amount <= wav_matrix.size(2):
                         # Shift the array to the right by one position
                         shifted_wm = torch.from_numpy(np.roll(wm, shift_amount)).to(wav_matrix.device)
                         shifted_watermarked_signal = wav_matrix + shifted_wm
@@ -251,12 +257,10 @@ def main(args, configs):
                         ber = bit_errors / total_bits
                         decoder_acc = (payload_decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
                         shifted_BER.append(ber)
-                        print("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(percentage, ber, decoder_acc))
+                        logging.info("Shift percentage: {}% - Decode BER:{} - Decode Accuracy{}".format(percentage, ber, decoder_acc))
                     else:
-                        print("Shift Amount Exceeded!")
-
+                        logging.info("Shift Amount Exceeded!")
             ###################################################
-
 
             losses = loss.en_de_loss(wav_matrix, encoded, msg, decoded)
             decoder_acc = (decoded >= 0).eq(msg >= 0).sum().float() / msg.numel()
