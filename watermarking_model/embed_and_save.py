@@ -152,10 +152,10 @@ def main(args, configs):
             # encoded, carrier_wateramrked = encoder.test_forward(wav_matrix, msg)
 
             for i in range(1,12):
-                print(os.path.join("./results/wm_speech/ljspeech/recording_test", str(i)+".wav"))
-                wav, sr = torchaudio.load(os.path.join("./results/wm_speech/ljspeech/recording_test", str(i)+".wav"))
-
-            # encoded = wav_matrix
+                wav, sr = torchaudio.load(os.path.join(
+                    "/home/guohanqi/code/yizhu_wen_test/TimbreWatermarking/watermarking_model/results/wm_speech/ljspeech/recording_test/",
+                    str(i) + ".wav"))
+                print(wav.size())
             # name = sample["name"][0]
             #
             # soundfile.write(os.path.join(wm_path, name), encoded.cpu().squeeze(0).squeeze(0).detach().numpy(), samplerate=sample_rate)
